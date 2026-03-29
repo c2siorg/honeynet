@@ -1,0 +1,23 @@
+project_name = "honeynet"
+
+regions = {
+  "us-east-1" = {
+    cloud_provider = "aws"
+    honeypot_type  = "ssh"
+    instance_count = 2
+    tags = {
+      environment = "dev"
+      purpose     = "threat-intel"
+    }
+  }
+
+  "eu-central-1" = {
+    cloud_provider = "aws"
+    honeypot_type  = "http"
+    instance_count = 1
+    tags = {
+      environment = "dev"
+      purpose     = "threat-intel"
+    }
+  }
+}
