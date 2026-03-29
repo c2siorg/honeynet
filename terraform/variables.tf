@@ -22,8 +22,8 @@ variable "instance_type" {
 
 variable "admin_ssh_cidr" {
   type        = string
-  description = "CIDR allowed to SSH to the host on port 22 for administration (not the honeypot listener)."
-  default     = "0.0.0.0/0"
+  description = "CIDR allowed to SSH to the host on port 22 for administration (not the honeypot listener). Use a narrow range when key_name is set; default is loopback so Checkov does not treat open SSH as the default."
+  default     = "127.0.0.1/32"
 }
 
 variable "key_name" {

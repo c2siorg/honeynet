@@ -15,6 +15,9 @@ resource "aws_instance" "honeypot" {
   vpc_security_group_ids = [aws_security_group.honeypot.id]
   iam_instance_profile   = aws_iam_instance_profile.ec2.name
 
+  monitoring    = true
+  ebs_optimized = true
+
   key_name = var.key_name != null && var.key_name != "" ? var.key_name : null
 
   user_data = templatefile("${path.module}/user_data.sh.tpl", {

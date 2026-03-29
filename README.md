@@ -43,8 +43,12 @@ Use different backend keys or directories so each region keeps its own `terrafor
 
 1. Open or pick an issue on the project’s GitHub repository.
 2. Branch from `main`, implement with focused commits.
-3. Run `./scripts/validate.sh` before pushing (requires Terraform installed locally).
+3. Run `./scripts/validate.sh` before pushing. This runs **Checkov** (install: `pip install checkov`) on `terraform/` and then `terraform fmt` / `validate`. CI runs the same checks.
 4. Open a PR describing behavior change and any new variables.
+
+### IaC policy (Checkov)
+
+Terraform is scanned with [Checkov](https://www.checkov.io/). Intentional honeypot exceptions use `# checkov:skip=...` comments with a short justification (for example global ingress on the honeypot port, public subnet, or wide egress for updates). Prefer fixing the underlying finding when it does not conflict with the sensor’s purpose.
 
 ## Security notes
 

@@ -1,6 +1,8 @@
 resource "aws_cloudwatch_log_group" "flow" {
   count = var.enable_flow_logs ? 1 : 0
 
+  # checkov:skip=CKV_AWS_338: Retention is set via flow_logs_retention_days; one-year retention is optional and costly for high-volume flow logs.
+  # checkov:skip=CKV_AWS_158: CMK encryption can be added when an KMS key ARN is available; accept default encryption for baseline module.
   name              = "/aws/vpc/${local.name}/flow"
   retention_in_days = var.flow_logs_retention_days
 }
@@ -33,13 +35,17 @@ resource "aws_iam_role_policy" "flow_logs" {
     Statement = [{
       Effect = "Allow"
       Action = [
-        "logs:CreateLogGroup",
         "logs:CreateLogStream",
         "logs:PutLogEvents",
-        "logs:DescribeLogGroups",
         "logs:DescribeLogStreams"
       ]
-      Resource = "*"
+      Resource = "${aws_cloudwatch_log_group.flow[0].arn}:*"
+      }, {
+      Effect = "Allow"
+      Action = [
+        "logs:DescribeLogGroups"
+      ]
+      Resource = aws_cloudwatch_log_group.flow[0].arn
     }]
   })
 }

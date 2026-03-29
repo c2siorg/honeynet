@@ -1,0 +1,7 @@
+# https://www.checkov.io/2.Basics/CLI%20Command%20Reference.html
+framework:
+  - terraform
+directory:
+  - terraform
+compact: true
+soft-fail: false
