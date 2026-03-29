@@ -1,0 +1,14 @@
+# Copy to terraform.tfvars (gitignored) and adjust.
+# Deploy per region with separate state, e.g.:
+#   terraform init && terraform apply -var-file=../env/us-east-1.tfvars
+
+aws_region   = "us-east-1"
+region_label = "na"
+
+name_prefix    = "honeynet"
+instance_type  = "t3.small"
+admin_ssh_cidr = "203.0.113.10/32" # lock down admin SSH in production
+# key_name       = "my-key"
+
+enable_flow_logs         = true
+flow_logs_retention_days = 14
