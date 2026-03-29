@@ -29,7 +29,7 @@ Outputs include the public IP and the CloudWatch log group for flow logs (if ena
 
 ## Multi-region deployment
 
-Deploy **once per region** with separate state (recommended: remote state per region—see [docs/ISSUES.md](docs/ISSUES.md) issue **#4**):
+Deploy **once per region** with separate state (recommended: use a remote backend per region so state files do not overwrite each other):
 
 ```bash
 ./scripts/deploy-region.sh terraform/env/us-east-1.tfvars
@@ -41,7 +41,7 @@ Use different backend keys or directories so each region keeps its own `terrafor
 
 ## Contributing
 
-1. Open or pick an item from [docs/ISSUES.md](docs/ISSUES.md).
+1. Open or pick an issue on the project’s GitHub repository.
 2. Branch from `main`, implement with focused commits.
 3. Run `./scripts/validate.sh` before pushing (requires Terraform installed locally).
 4. Open a PR describing behavior change and any new variables.
