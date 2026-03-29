@@ -1,0 +1,12 @@
+# Optional: copy to backend.tf and create the S3 bucket + DynamoDB table first.
+# See docs/ISSUES.md (issue #4) for remote state setup.
+
+# terraform {
+#   backend "s3" {
+#     bucket         = "your-org-honeynet-tfstate"
+#     key            = "honeynet/us-east-1/terraform.tfstate"
+#     region         = "us-east-1"
+#     encrypt        = true
+#     dynamodb_table = "honeynet-tf-locks"
+#   }
+# }
