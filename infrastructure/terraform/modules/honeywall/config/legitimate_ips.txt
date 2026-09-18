@@ -1,0 +1,10 @@
+# Legitimate IP ranges for honeywall
+# Add your trusted IP ranges here
+# Format: IP/CIDR (one per line)
+
+# Example corporate networks
+# 192.168.1.0/24
+# 10.0.0.0/8
+# 172.16.0.0/12
+
+# Add your specific trusted IPs below
