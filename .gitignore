@@ -1,0 +1,17 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+terraform.tfvars
+.terraform.lock.hcl
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+terraform/*.tfvars
+terraform/*.auto.tfvars
+!terraform/*.example
+terraform/modules/telemetry/lambda_enrichment.zip

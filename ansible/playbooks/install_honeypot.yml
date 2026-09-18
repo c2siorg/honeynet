@@ -1,0 +1,96 @@
+- hosts: honeynet
+  become: yes
+
+  vars:
+    cowrie_dir: /home/ubuntu/cowrie
+
+  tasks:
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install required packages
+      apt:
+        name:
+          - git
+          - python3
+          - python3-pip
+          - python3-venv
+        state: present
+
+    - name: Remove old Cowrie installation
+      file:
+        path: "{{ cowrie_dir }}"
+        state: absent
+
+    - name: Clone Cowrie repository
+      git:
+        repo: https://github.com/cowrie/cowrie.git
+        dest: "{{ cowrie_dir }}"
+
+    - name: Create Python virtual environment
+      command: python3 -m venv cowrie-env
+      args:
+        chdir: "{{ cowrie_dir }}"
+
+    - name: Install Cowrie dependencies
+      command: "{{ cowrie_dir }}/cowrie-env/bin/pip install -r requirements.txt"
+      args:
+        chdir: "{{ cowrie_dir }}"
+
+    - name: Install Cowrie in editable mode
+      command: "{{ cowrie_dir }}/cowrie-env/bin/python -m pip install -e ."
+      args:
+        chdir: "{{ cowrie_dir }}"
+
+    - name: Ensure correct ownership
+      file:
+        path: "{{ cowrie_dir }}"
+        owner: ubuntu
+        group: ubuntu
+        recurse: yes
+
+    - name: Deploy Cowrie config
+      template:
+        src: ../templates/cowrie.cfg.j2
+        dest: "{{ cowrie_dir }}/etc/cowrie.cfg"
+        owner: ubuntu
+        group: ubuntu
+        mode: "0644"
+
+    - name: Install Twisted
+      command: "{{ cowrie_dir }}/cowrie-env/bin/pip install twisted"
+
+    - name: Create Cowrie systemd service
+      copy:
+        dest: /etc/systemd/system/cowrie.service
+        content: |
+          [Unit]
+          Description=Cowrie SSH Honeypot
+          After=network.target
+
+          [Service]
+          Type=forking
+          User=ubuntu
+          WorkingDirectory=/home/ubuntu/cowrie
+
+          Environment="PATH=/home/ubuntu/cowrie/cowrie-env/bin:/usr/bin:/bin"
+
+          ExecStart=/home/ubuntu/cowrie/cowrie-env/bin/cowrie start
+          ExecStop=/home/ubuntu/cowrie/cowrie-env/bin/cowrie stop
+          
+          Restart=always
+          RestartSec=5
+
+          [Install]
+          WantedBy=multi-user.target
+
+    - name: Reload systemd
+      command: systemctl daemon-reexec
+
+    - name: Enable Cowrie service
+      command: systemctl enable cowrie
+
+    - name: Start Cowrie service
+      command: systemctl start cowrie

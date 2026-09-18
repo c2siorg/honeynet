@@ -1,0 +1,28 @@
+[honeypot]
+hostname = {{ inventory_hostname }}
+log_path = var/log/cowrie
+download_path = ${honeypot:state_path}/downloads
+state_path = var/lib/cowrie
+etc_path = etc
+contents_path = honeyfs
+txtcmds_path = txtcmds
+ttylog = true
+ttylog_path = ${honeypot:state_path}/tty
+auth_class = UserDB
+backend = shell
+logtype = rotating
+timezone = UTC
+
+[ssh]
+enabled = true
+listen_endpoints = tcp:2222:interface=0.0.0.0
+
+[output_jsonlog]
+enabled = true
+logfile = ${honeypot:log_path}/cowrie.json
+epoch_timestamp = false
+
+[output_textlog]
+enabled = true
+logfile = ${honeypot:log_path}/audit.log
+format = text
