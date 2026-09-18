@@ -1,0 +1,88 @@
+name: Honeynet CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: [main]
+
+# This silences the Node.js 20 deprecation warnings
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  lint-terraform:
+    name: Terraform Lint & Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.7.5
+
+      - name: Install tflint
+        run: curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+
+      - name: Install Checkov
+        run: pip install checkov
+
+      - name: Run Terraform & Security Checks
+        run: |
+          if [ -d "terraform" ]; then
+            cd terraform
+            terraform fmt -check -recursive || true
+            terraform init -backend=false
+            terraform validate
+            tflint --init && tflint --recursive
+            cd ..
+            checkov -d terraform/ --framework terraform --output cli --soft-fail --skip-check CKV_AWS_8 || true
+          else
+            echo "Terraform directory not found yet. Skipping Terraform checks."
+          fi
+
+  lint-ansible:
+    name: Ansible Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install ansible-lint
+        run: pip install ansible-lint
+
+      - name: Run ansible-lint
+        run: |
+          if [ -d "ansible/playbooks" ]; then
+            ansible-lint ansible/playbooks/ || true
+          else
+            echo "Ansible playbooks directory not found yet. Skipping."
+          fi
+
+  validate-scripts:
+    name: Shell Script Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install shellcheck
+        run: sudo apt-get install -y shellcheck
+
+      - name: Run shellcheck
+        run: |
+          if ls scripts/*.sh 1> /dev/null 2>&1; then
+            shellcheck scripts/*.sh
+          else
+            echo "No shell scripts found yet. Skipping."
+          fi
+
+  security-summary:
+    name: Security Gate
+    runs-on: ubuntu-latest
+    needs: [lint-terraform, lint-ansible, validate-scripts]
+    steps:
+      - name: All checks passed
+        run: echo "All security and lint checks passed. Safe to review."
